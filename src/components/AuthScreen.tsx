@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import { authenticateUser, StoredUserAccount } from '../services/firestoreService';
-import { Shield, Lock, User, AlertCircle, KeyRound, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { Shield, Lock, User, AlertCircle, KeyRound, Sparkles, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 interface AuthScreenProps {
   onLoginSuccess: (user: StoredUserAccount) => void;
@@ -36,6 +36,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleQuickAdmin = () => {
+    setUsernameOrEmail('admin');
+    setPassword('admin123');
   };
 
   return (
@@ -79,7 +84,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
                 required
                 value={usernameOrEmail}
                 onChange={(e) => setUsernameOrEmail(e.target.value)}
-                placeholder="Enter User ID or Email"
+                placeholder="e.g. admin or your username"
                 className="w-full pl-9 pr-3 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-hidden focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
               />
             </div>
@@ -104,7 +109,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200 cursor-pointer"
+                className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -126,11 +131,31 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLoginSuccess }) => {
             )}
           </button>
         </form>
+
+        {/* Master Admin Quick Access Helper Box */}
+        <div className="mt-6 pt-5 border-t border-slate-800 text-xs">
+          <div className="bg-slate-800/50 border border-slate-700/60 rounded-xl p-3.5 flex flex-col gap-2">
+            <div className="flex items-center justify-between text-slate-300 font-semibold">
+              <span className="flex items-center gap-1.5 text-amber-400">
+                <Sparkles className="w-3.5 h-3.5" />
+                Master Admin Default Credentials
+              </span>
+              <button
+                onClick={handleQuickAdmin}
+                className="text-[11px] text-sky-400 hover:text-sky-300 underline font-medium cursor-pointer"
+              >
+                Auto-fill
+              </button>
+            </div>
+            <div className="text-[11px] text-slate-400 flex flex-col gap-1 font-mono">
+              <div>User ID: <span className="text-white font-bold">admin</span></div>
+              <div>Password: <span className="text-white font-bold">admin123</span></div>
+            </div>
+            <p className="text-[10px] text-slate-500 leading-relaxed font-sans mt-0.5">
+              The Master Admin can create new User IDs and Passwords for teammates. Each user only sees their own BMs and Ad Accounts.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="text-center text-xs text-slate-600 mt-6">
-        Protected with Firestore User Isolation & Cloud Security Rules
-      </div>
-    </div>
-  );
-};
