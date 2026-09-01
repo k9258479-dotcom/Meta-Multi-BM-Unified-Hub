@@ -37,6 +37,9 @@ interface UnifiedReportTableProps {
   onChangeDateRange: (val: string) => void;
   onOpenEditASL: (account: AdAccount) => void;
   onResetSpend: (accountId: string) => void;
+  onOpenBMManager?: () => void;
+  onOpenAddAccount?: () => void;
+  onLoadDemoTemplate?: () => void;
 }
 
 export const UnifiedReportTable: React.FC<UnifiedReportTableProps> = ({
@@ -51,6 +54,9 @@ export const UnifiedReportTable: React.FC<UnifiedReportTableProps> = ({
   onChangeDateRange,
   onOpenEditASL,
   onResetSpend,
+  onOpenBMManager,
+  onOpenAddAccount,
+  onLoadDemoTemplate,
 }) => {
   const [reportTitle, setReportTitle] = useState('Cross-BM Performance Report');
   const [searchQuery, setSearchQuery] = useState('');
@@ -502,7 +508,53 @@ export const UnifiedReportTable: React.FC<UnifiedReportTableProps> = ({
 
             {/* Table Body */}
             <tbody className="divide-y divide-slate-100 font-mono">
-              {filteredAccounts.map((account) => {
+              {filteredAccounts.length === 0 ? (
+                <tr>
+                  <td colSpan={visibleColumns.length} className="text-center py-16 px-4 bg-slate-50/50">
+                    <div className="max-w-md mx-auto flex flex-col items-center justify-center space-y-3 font-sans">
+                      <div className="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600 shadow-xs">
+                        <Layers className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-800 text-sm">No Business Managers or Ad Accounts Found</h3>
+                        <p className="text-xs text-slate-500 mt-1">
+                          This user account has no saved Business Managers or Ad Accounts yet. Add your Meta assets below or load sample data to get started.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                        {onOpenBMManager && (
+                          <button
+                            onClick={onOpenBMManager}
+                            className="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Building2 className="w-4 h-4" />
+                            + Add Business Manager
+                          </button>
+                        )}
+                        {onOpenAddAccount && (
+                          <button
+                            onClick={onOpenAddAccount}
+                            className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Sliders className="w-4 h-4 text-sky-600" />
+                            + Add Ad Account
+                          </button>
+                        )}
+                        {onLoadDemoTemplate && (
+                          <button
+                            onClick={onLoadDemoTemplate}
+                            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                            Load Starter Template
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredAccounts.map((account) => {
                 const isAccExpanded = !!expandedAccounts[account.id];
                 const aslMeta = getASLStatusMeta(account.amountSpent, account.accountSpendingLimit, account.alertThresholdPercent);
                 const bmStyle = getBMColorStyle(
@@ -951,7 +1003,7 @@ export const UnifiedReportTable: React.FC<UnifiedReportTableProps> = ({
                     })}
                   </React.Fragment>
                 );
-              })}
+              }))}
             </tbody>
 
             {/* Total Results Sticky Footer (Matching Screenshot) */}

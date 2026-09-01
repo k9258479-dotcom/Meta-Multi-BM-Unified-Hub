@@ -1,5 +1,18 @@
+export interface UserProfile {
+  id: string;
+  userId: string;
+  email: string;
+  username: string;
+  displayName: string;
+  role: 'admin' | 'member';
+  status: 'active' | 'suspended';
+  createdAt: string;
+  createdBy?: string;
+}
+
 export interface BusinessManager {
   id: string;
+  userId?: string;
   name: string;
   bmId: string;
   currency: string;
@@ -63,6 +76,7 @@ export interface Campaign {
 
 export interface AdAccount {
   id: string;
+  userId?: string;
   bmId: string;
   bmName: string;
   name: string;
@@ -100,6 +114,7 @@ export type AlertType = 'APPROACHING_LIMIT' | 'CRITICAL_LIMIT' | 'LIMIT_REACHED'
 
 export interface ASLAlert {
   id: string;
+  userId?: string;
   accountId: string;
   accountName: string;
   bmId: string;
@@ -115,7 +130,7 @@ export interface ASLAlert {
   actionTaken?: string;
 }
 
-export type ViewTab = 'unified_reporting' | 'spending_limits' | 'bm_manager' | 'alerts_hub' | 'ai_insights';
+export type ViewTab = 'unified_reporting' | 'bm_compare' | 'spending_limits' | 'bm_manager' | 'alerts_hub' | 'ai_insights' | 'user_management';
 
 export interface ColumnConfig {
   id: string;

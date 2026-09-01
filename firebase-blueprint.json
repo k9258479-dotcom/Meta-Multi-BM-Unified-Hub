@@ -1,0 +1,113 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User credentials, access level, and role information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 200 },
+        "username": { "type": "string", "maxLength": 100 },
+        "displayName": { "type": "string", "maxLength": 200 },
+        "role": { "type": "string", "enum": ["admin", "member"] },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
+        "createdAt": { "type": "string", "maxLength": 100 },
+        "createdBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "userId", "email", "role", "status", "createdAt"]
+    },
+    "BusinessManager": {
+      "title": "BusinessManager",
+      "description": "Meta Business Manager configuration and credentials owned by a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "bmId": { "type": "string", "maxLength": 100 },
+        "currency": { "type": "string", "maxLength": 10 },
+        "timezone": { "type": "string", "maxLength": 50 },
+        "color": { "type": "string", "maxLength": 30 },
+        "ownerEmail": { "type": "string", "maxLength": 200 },
+        "status": { "type": "string", "enum": ["active", "warning", "restricted"] }
+      },
+      "required": ["id", "userId", "name", "bmId", "currency", "timezone", "status"]
+    },
+    "AdAccount": {
+      "title": "AdAccount",
+      "description": "Meta Ad Account with spending limits and performance KPIs owned by a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "bmId": { "type": "string", "maxLength": 128 },
+        "bmName": { "type": "string", "maxLength": 200 },
+        "name": { "type": "string", "maxLength": 200 },
+        "accountId": { "type": "string", "maxLength": 100 },
+        "currency": { "type": "string", "maxLength": 10 },
+        "status": { "type": "string", "enum": ["ACTIVE", "LIMIT_REACHED", "APPROACHING_LIMIT", "PAUSED", "DISABLED"] },
+        "amountSpent": { "type": "number" },
+        "accountSpendingLimit": { "type": "number" },
+        "dailySpendLimit": { "type": "number" },
+        "todaySpend": { "type": "number" },
+        "billingThreshold": { "type": "number" },
+        "currentBillingBill": { "type": "number" },
+        "alertThresholdPercent": { "type": "number" },
+        "purchases": { "type": "number" },
+        "purchasesConversionValue": { "type": "number" },
+        "costPerPurchase": { "type": "number" },
+        "avgPurchaseConversionValue": { "type": "number" },
+        "registrationsCompleted": { "type": "number" },
+        "costPerRegistration": { "type": "number" },
+        "clicks": { "type": "number" },
+        "ctr": { "type": "number" },
+        "cpc": { "type": "number" },
+        "cpm": { "type": "number" },
+        "impressions": { "type": "number" },
+        "reach": { "type": "number" }
+      },
+      "required": ["id", "userId", "bmId", "bmName", "name", "accountId", "currency", "status", "amountSpent", "accountSpendingLimit"]
+    },
+    "ASLAlert": {
+      "title": "ASLAlert",
+      "description": "Real-time ASL alert notifications and thresholds per user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "accountId": { "type": "string", "maxLength": 128 },
+        "accountName": { "type": "string", "maxLength": 200 },
+        "bmId": { "type": "string", "maxLength": 128 },
+        "bmName": { "type": "string", "maxLength": 200 },
+        "timestamp": { "type": "string", "maxLength": 100 },
+        "type": { "type": "string", "maxLength": 50 },
+        "severity": { "type": "string", "enum": ["warning", "critical", "danger", "info"] },
+        "percentUsed": { "type": "number" },
+        "currentSpent": { "type": "number" },
+        "spendingLimit": { "type": "number" },
+        "message": { "type": "string", "maxLength": 500 },
+        "read": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "accountId", "accountName", "bmId", "bmName", "type", "severity", "percentUsed", "currentSpent", "spendingLimit", "message", "read"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles and access permissions"
+    },
+    "/business_managers/{bmId}": {
+      "schema": "BusinessManager",
+      "description": "Meta Business Managers managed by user"
+    },
+    "/ad_accounts/{accountId}": {
+      "schema": "AdAccount",
+      "description": "Ad accounts aggregated across BMs"
+    },
+    "/alerts/{alertId}": {
+      "schema": "ASLAlert",
+      "description": "Real-time notifications for spending limit thresholds"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ViewTab, ASLAlert } from '../types';
+import { StoredUserAccount } from '../services/firestoreService';
 import { 
   BarChart3, 
   ShieldAlert, 
@@ -9,9 +10,15 @@ import {
   VolumeX, 
   Play, 
   Pause, 
-  Sparkles,
-  Layers,
-  Activity
+  Sparkles, 
+  Layers, 
+  Activity, 
+  Target, 
+  Users, 
+  LogOut, 
+  PlusCircle, 
+  Shield, 
+  User 
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -21,6 +28,7 @@ interface HeaderProps {
   onOpenNotifications: () => void;
   onOpenCopilot: () => void;
   onOpenBMManager: () => void;
+  onOpenAddAccount: () => void;
   isSimulating: boolean;
   onToggleSimulation: () => void;
   simulationSpeed: number;
@@ -29,6 +37,8 @@ interface HeaderProps {
   onToggleSound: () => void;
   totalBMs: number;
   totalAccounts: number;
+  currentUser: StoredUserAccount;
+  onLogout: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -38,6 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNotifications,
   onOpenCopilot,
   onOpenBMManager,
+  onOpenAddAccount,
   isSimulating,
   onToggleSimulation,
   simulationSpeed,
@@ -46,6 +57,8 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleSound,
   totalBMs,
   totalAccounts,
+  currentUser,
+  onLogout,
 }) => {
   const unreadAlertsCount = alerts.filter(a => !a.read).length;
   const criticalCount = alerts.filter(a => a.severity === 'critical' || a.severity === 'danger').length;
@@ -73,13 +86,23 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Live Simulation Engine Controls */}
+        {/* Live Simulation Engine Controls & User Controls */}
         <div className="flex items-center gap-2 text-xs">
+          {/* Quick Add Ad Account Button */}
+          <button
+            onClick={onOpenAddAccount}
+            className="px-2.5 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-lg flex items-center gap-1.5 font-semibold transition-colors cursor-pointer"
+            title="Add New Ad Account"
+          >
+            <PlusCircle className="w-3.5 h-3.5 text-sky-600" />
+            <span className="hidden sm:inline">+ Ad Account</span>
+          </button>
+
           {/* Live Simulator Pill */}
           <div className="flex items-center bg-slate-50 border border-slate-200 rounded-lg p-1">
             <button
               onClick={onToggleSimulation}
-              className={`px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors ${
+              className={`px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
                 isSimulating 
                   ? 'bg-emerald-600 text-white shadow-xs' 
                   : 'bg-slate-200 text-slate-700 hover:text-slate-900'
@@ -89,12 +112,12 @@ export const Header: React.FC<HeaderProps> = ({
               {isSimulating ? (
                 <>
                   <Activity className="w-3.5 h-3.5 animate-spin" />
-                  <span className="hidden sm:inline">Live Spend Ticker Active</span>
+                  <span className="hidden sm:inline">Spend Ticker Active</span>
                 </>
               ) : (
                 <>
                   <Play className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Start Spend Ticker</span>
+                  <span className="hidden sm:inline">Spend Ticker</span>
                 </>
               )}
             </button>
@@ -106,8 +129,8 @@ export const Header: React.FC<HeaderProps> = ({
                 className="bg-white text-slate-700 text-[11px] font-mono px-1.5 py-1 rounded ml-1 border border-slate-200 focus:outline-hidden"
               >
                 <option value={1}>1x</option>
-                <option value={5}>5x speed</option>
-                <option value={10}>10x speed</option>
+                <option value={5}>5x</option>
+                <option value={10}>10x</option>
               </select>
             )}
           </div>
@@ -115,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Sound Toggle */}
           <button
             onClick={onToggleSound}
-            className={`p-2 rounded-lg border transition-colors ${
+            className={`p-2 rounded-lg border transition-colors cursor-pointer ${
               soundEnabled
                 ? 'bg-white border-slate-200 text-slate-700 hover:text-slate-900 shadow-xs'
                 : 'bg-slate-50 border-slate-200 text-slate-400'
@@ -128,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* AI Copilot Button */}
           <button
             onClick={onOpenCopilot}
-            className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg flex items-center gap-1.5 font-medium transition-colors"
+            className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg flex items-center gap-1.5 font-medium transition-colors cursor-pointer"
             title="ASL Velocity & Pacing Copilot"
           >
             <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
@@ -138,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Alert Bell Button */}
           <button
             onClick={onOpenNotifications}
-            className="relative p-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 transition-colors shadow-xs"
+            className="relative p-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 transition-colors shadow-xs cursor-pointer"
             title="View Real-Time ASL Alerts"
           >
             <Bell className="w-4 h-4" />
@@ -150,34 +173,73 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             )}
           </button>
+
+          {/* User Profile Badge & Logout */}
+          <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200 ml-1">
+            <div className="flex items-center gap-1.5 bg-slate-100/80 px-2 py-1 rounded-lg border border-slate-200">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                currentUser.role === 'admin' ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-white'
+              }`}>
+                {currentUser.username.charAt(0).toUpperCase()}
+              </div>
+              <div className="hidden xl:block text-left leading-tight">
+                <span className="text-[11px] font-bold text-slate-800 block truncate max-w-[90px]">
+                  {currentUser.displayName || currentUser.username}
+                </span>
+                <span className="text-[9px] font-mono text-slate-500 block uppercase">
+                  {currentUser.role}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={onLogout}
+              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Main Tab Navigation */}
       <div className="px-4 flex items-center justify-between border-t border-slate-100 bg-slate-50/70 overflow-x-auto text-xs">
-        <nav className="flex space-x-1 sm:space-x-4 py-1.5">
+        <nav className="flex space-x-1 sm:space-x-3 py-1.5">
           <button
             onClick={() => onChangeTab('unified_reporting')}
-            className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-2 transition-all ${
+            className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === 'unified_reporting'
                 ? 'bg-sky-50 text-sky-700 border border-sky-200 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <BarChart3 className="w-4 h-4 text-sky-600" />
-            <span>Unified Meta Reporting (Pivot View)</span>
+            <span>Unified Meta Reporting</span>
+          </button>
+
+          <button
+            onClick={() => onChangeTab('bm_compare')}
+            className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'bm_compare'
+                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Target className="w-4 h-4 text-indigo-600" />
+            <span>Cross-BM Benchmark</span>
           </button>
 
           <button
             onClick={() => onChangeTab('spending_limits')}
-            className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-2 transition-all ${
+            className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === 'spending_limits'
                 ? 'bg-amber-50 text-amber-800 border border-amber-200 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <ShieldAlert className="w-4 h-4 text-amber-600" />
-            <span>Account Spending Limits (ASL Tracker)</span>
+            <span>Account Spending Limits (ASL)</span>
             {criticalCount > 0 && (
               <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-500 text-white">
                 {criticalCount}
@@ -187,11 +249,26 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onOpenBMManager}
-            className="px-3 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2 transition-colors"
+            className="px-3 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2 transition-colors cursor-pointer"
           >
             <Building2 className="w-4 h-4 text-slate-500" />
             <span>Business Managers ({totalBMs})</span>
           </button>
+
+          {/* Admin User Management Tab (for Admin role) */}
+          {currentUser.role === 'admin' && (
+            <button
+              onClick={() => onChangeTab('user_management')}
+              className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                activeTab === 'user_management'
+                  ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-xs'
+                  : 'text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50/60'
+              }`}
+            >
+              <Users className="w-4 h-4 text-indigo-600" />
+              <span>User Management (Admin)</span>
+            </button>
+          )}
         </nav>
 
         <div className="hidden lg:flex items-center gap-3 text-[11px] text-slate-500 font-mono">

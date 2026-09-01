@@ -2,5 +2,7 @@
   "name": "Meta Multi-BM Ad Account & Spending Limit Hub",
   "description": "Unified dashboard to aggregate ad accounts across multiple Business Managers, monitor real-time Account Spending Limits (ASL), and receive instant threshold alerts.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
